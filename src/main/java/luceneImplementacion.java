@@ -1,4 +1,3 @@
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -42,7 +41,7 @@ import org.json.simple.JSONValue;
 import org.json.simple.parser.JSONParser;
 
 public class LuceneImplementacion {
-    
+    /*
     public void parseJSONFile() throws FileNotFoundException, IOException, org.json.simple.parser.ParseException, JSONException{// parsea el archivo json
         
          JSONParser parser = new JSONParser();
@@ -58,27 +57,27 @@ public class LuceneImplementacion {
         }
         //JSONArray array = (JSONArray) parser.parse(new FileReader("resources/test.json"));
         //System.out.println("tamaño array:"+array.length());
-        /*
+        
         for (int i =0 ; array.length()< i; i++){
         JSONObject jsonObject =  (JSONObject) o;
         String name = (String) jsonObject.get("name");
             System.out.println(name);
          String stored = (String) jsonObject.get("stored");
             System.out.println(stored);
-        }*/
-        /*
+        }
+        
         InputStream jsonFile =  getClass().getResourceAsStream("resources/test.json");
         Reader readerJson = new InputStreamReader(jsonFile);
         Object fileObjects= JSONValue.parse(readerJson);
         JSONArray arrayObjects=(JSONArray)fileObjects;
         return arrayObjects;
-        */
+        
     }
-    
-    public void CrearIndice(String path) throws IOException, JSONException, org.json.simple.parser.ParseException{// metodo que crea el indice con todos los archivos dentro del path
+    */
+    public void CrearIndice( String path) throws IOException, JSONException, org.json.simple.parser.ParseException{// metodo que crea el indice con todos los archivos dentro del path
     
        JSONParser parser = new JSONParser();
-         Object object = parser.parse(new FileReader(path));   
+         Object object = parser.parse(new FileReader(path));   //path del archivo json
         JSONArray jsonArray = (JSONArray) object;
         //System.out.println("largo: "+ jsonArray.size());
         
@@ -179,3 +178,5 @@ public class LuceneImplementacion {
   }
 
     }
+    
+
