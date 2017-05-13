@@ -161,7 +161,7 @@ public class LuceneImplementacion {
     public static void main(String[] args) throws IOException, ParseException, JSONException, FileNotFoundException, org.json.simple.parser.ParseException {
         
     LuceneImplementacion lucene = new LuceneImplementacion();
-    
+    /*
     Tweet t1 = new Tweet("probando lucene");
     Tweet t2 = new Tweet("lucene hola mani");
     Tweet t3 = new Tweet("probando que tal tu  lucene");
@@ -176,11 +176,11 @@ public class LuceneImplementacion {
     tweets[4] = t5;
     tweets[5] = t6;
     String[] keywords = {"hola","mani","volar"};
-     
+     */
     //lucene.parseJSONFile();
     //lucene.CrearIndice("resources/test2.json");
     //lucene.CrearIndice(tweets);
-    lucene.BuscarIndice(keywords);
+    //lucene.BuscarIndice(keywords);
    
   
   }
