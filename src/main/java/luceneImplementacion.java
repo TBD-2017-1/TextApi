@@ -1,3 +1,4 @@
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -25,12 +26,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.lang.reflect.Array;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Set;
+import org.apache.lucene.document.IntField;
 
 import org.apache.lucene.index.Term;
+import org.apache.lucene.queryparser.xml.builders.BooleanQueryBuilder;
+import org.apache.lucene.search.BooleanClause;
+import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.FSDirectory;
@@ -41,54 +47,19 @@ import org.json.simple.JSONValue;
 import org.json.simple.parser.JSONParser;
 
 public class LuceneImplementacion {
-    /*
-    public void parseJSONFile() throws FileNotFoundException, IOException, org.json.simple.parser.ParseException, JSONException{// parsea el archivo json
-        
-         JSONParser parser = new JSONParser();
-         Object object = parser.parse(new FileReader("/home/gabriel/NetBeansProjects/luceneImplementacion/resources/test2.json"));   
-        JSONArray jsonArray = (JSONArray) object;
-        System.out.println("largo: "+ jsonArray.size());
-        for(int i = 0 ; jsonArray.size() > i; i++){
-            JSONObject jsonObjectRow = (JSONObject) jsonArray.get(i);
-            String name = (String) jsonObjectRow.get("name");
-
-        //String name = (String) jsonArray.get(i).toString();
-        System.out.println(name);
-        }
-        //JSONArray array = (JSONArray) parser.parse(new FileReader("resources/test.json"));
-        //System.out.println("tamaño array:"+array.length());
-        
-        for (int i =0 ; array.length()< i; i++){
-        JSONObject jsonObject =  (JSONObject) o;
-        String name = (String) jsonObject.get("name");
-            System.out.println(name);
-         String stored = (String) jsonObject.get("stored");
-            System.out.println(stored);
-        }
-        
-        InputStream jsonFile =  getClass().getResourceAsStream("resources/test.json");
-        Reader readerJson = new InputStreamReader(jsonFile);
-        Object fileObjects= JSONValue.parse(readerJson);
-        JSONArray arrayObjects=(JSONArray)fileObjects;
-        return arrayObjects;
-        
-    }
-    */
-    public void CrearIndice( String path) throws IOException, JSONException, org.json.simple.parser.ParseException{// metodo que crea el indice con todos los archivos dentro del path
+    
+    
+    
+    public void CrearIndice(String path) throws IOException, JSONException, org.json.simple.parser.ParseException{// metodo que crea el indice con todos los archivos dentro del path
     
        JSONParser parser = new JSONParser();
          Object object = parser.parse(new FileReader(path));   //path del archivo json
-        JSONArray jsonArray = (JSONArray) object;
-        //System.out.println("largo: "+ jsonArray.size());
-        
+        JSONArray jsonArray = (JSONArray) object;    
+    Directory dir = FSDirectory.open(new File("indice/"));// directorio donde se guarda el indice
+    StandardAnalyzer analyzer = new StandardAnalyzer(Version.LUCENE_48);
 
 
-        
-    Directory dir = FSDirectory.open(Paths.get("indice/"));// directorio donde se guarda el indice
-    StandardAnalyzer analyzer = new StandardAnalyzer();
-
-
-    IndexWriterConfig config = new IndexWriterConfig(analyzer);
+    IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_48,analyzer);
     config.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
     IndexWriter w = new IndexWriter(dir, config);
     String ruta = "resources/"; //ruta de los archivos que quieren ser indexados
@@ -108,54 +79,74 @@ public class LuceneImplementacion {
         }
         //System.out.println("field: "+ w.getFieldNames());
         System.out.println("numdoc: "+ w.numDocs());
-    /*
-    for(JSONObject object : (List<JSONObject>) arrayObjects){
-        Document doc = new Document();
-        for(String field : (Set<String>) object.keys()){
-            Class type = object.get(field).getClass();
-            if(type.equals(String.class)){
-                doc.add(new StringField(field, (String)object.get(field), Field.Store.YES));
-            }
-        }
-    }
    
-    */
-    /*if(Files.isDirectory(Paths.get(ruta))){
-        File directorioTweets = new File(ruta);
-        File[] Tweets = directorioTweets.listFiles();
-        Document doc = null;
-        for( File f : Tweets){
-            if(f.isFile() && f.canRead() && f.getName().endsWith(".txt")){
-                doc = new Document();
-                doc.add(new StringField("path", f.toString(), Field.Store.YES));// añade el path del archivo que se esta indexando
-                doc.add(new TextField("contenido", new FileReader(f))); // añade el contenido del arhcivo
-                if(w.getConfig().getOpenMode() == IndexWriterConfig.OpenMode.CREATE){
-                    System.out.println("Indexando el archivo:" +f.getName());
-                    w.addDocument(doc);
-                }
-                else{
-                    System.out.println("Actualizando el archivo:" + f.getName());
-                    w.updateDocument(new Term("path", f.toString()), doc);
-                }
-            }
-        }
-    }
-        System.out.println("numero documentos indexados:" + w.numDocs());*/
     w.close();
     }
     
+     public void CrearIndice(Tweet tweet[]) throws IOException, JSONException, org.json.simple.parser.ParseException{// metodo que crea el indice con todos los archivos dentro del path
      
+    Directory dir = FSDirectory.open(new File("indice/"));// directorio donde se guarda el indice
+    StandardAnalyzer analyzer = new StandardAnalyzer(Version.LUCENE_48);
+
+
+    IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_48,analyzer);
+    config.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
+    IndexWriter w = new IndexWriter(dir, config);
+    String ruta = "resources/"; //ruta de los archivos que quieren ser indexados
+    
+    for(int i = 0 ; tweet.length > i; i++){
+            Document doc = new Document();
+            
+            String texto = tweet[i].text;
+            
+            doc.add(new TextField("texto", texto, Field.Store.YES));
+            
+        //String name = (String) jsonArray.get(i).toString();
+        System.out.println(texto);
+         
+         w.addDocument(doc);
+                
+              
+         //System.out.println("tengo:" +doc.get("texto"));
+        }
+        //System.out.println("field: "+ w.getFieldNames());
+        System.out.println("numdoc: "+ w.numDocs());
+   
+    w.close();
+    }
      
     public void BuscarIndice(String palabra) throws IOException, ParseException{// metodo para busqueda dada alguna palabra
-        Directory dir = FSDirectory.open(Paths.get("indice/"));
-        StandardAnalyzer analyzer = new StandardAnalyzer();
+        Directory dir = FSDirectory.open(new File("indice/"));
+        StandardAnalyzer analyzer = new StandardAnalyzer(Version.LUCENE_48);
         IndexReader reader = DirectoryReader.open(dir);
         IndexSearcher searcher = new IndexSearcher(reader);
-        QueryParser parser = new QueryParser("texto", analyzer);
+        QueryParser parser = new QueryParser(Version.LUCENE_48,"texto", analyzer);
         Query query = parser.parse(palabra);//la palabra que se quiere buscar
-        //Term t = new Term("texto", "lucene");
-        //Query query = new TermQuery(t);
         TopDocs results = searcher.search(query,5);
+        ScoreDoc[] hits = results.scoreDocs;
+        
+        System.out.println("hits: "+hits.length);
+        for(int i= 0; i < hits.length; i++){
+            Document doc = searcher.doc(hits[i].doc);
+            //String path = doc.get("path");
+            System.out.println((i+1)+".- score="+ hits[i].score);
+            
+        }
+        reader.close();
+    }
+    
+    public void BuscarIndice(String keywords[]) throws IOException, ParseException{// metodo para busqueda dada alguna palabra
+        Directory dir = FSDirectory.open(new File("indice/"));
+        StandardAnalyzer analyzer = new StandardAnalyzer(Version.LUCENE_48);
+        IndexReader reader = DirectoryReader.open(dir);
+        IndexSearcher searcher = new IndexSearcher(reader);
+        QueryParser parser = new QueryParser(Version.LUCENE_48,"texto", analyzer);
+        BooleanQuery bq =  new BooleanQuery();
+        for(int i =0 ; keywords.length > i; i++){
+           Query query = parser.parse(keywords[i]);//la palabra que se quiere buscar
+           bq.add(query, BooleanClause.Occur.SHOULD);
+        }
+        TopDocs results = searcher.search(bq,5);
         ScoreDoc[] hits = results.scoreDocs;
         
         System.out.println("hits: "+hits.length);
@@ -170,13 +161,29 @@ public class LuceneImplementacion {
     public static void main(String[] args) throws IOException, ParseException, JSONException, FileNotFoundException, org.json.simple.parser.ParseException {
         
     LuceneImplementacion lucene = new LuceneImplementacion();
+    
+    Tweet t1 = new Tweet("probando lucene");
+    Tweet t2 = new Tweet("lucene hola mani");
+    Tweet t3 = new Tweet("probando que tal tu  lucene");
+    Tweet t4 = new Tweet("probando jota erre lucene");
+    Tweet t5 = new Tweet("probando kappa lul lucene");
+    Tweet t6 = new Tweet("probando no mas esto");
+    Tweet[] tweets = new Tweet[6];
+    tweets[0] = t1;
+    tweets[1] = t2;
+    tweets[2] = t3;
+    tweets[3] = t4;
+    tweets[4] = t5;
+    tweets[5] = t6;
+    String[] keywords = {"hola","mani","volar"};
+     
     //lucene.parseJSONFile();
-    lucene.CrearIndice("resources/test2.json");
-    lucene.BuscarIndice("lucene");
+    //lucene.CrearIndice("resources/test2.json");
+    //lucene.CrearIndice(tweets);
+    lucene.BuscarIndice(keywords);
    
   
   }
 
     }
     
-
