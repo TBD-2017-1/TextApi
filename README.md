@@ -16,7 +16,9 @@ Para compilar el protecto se requiere:
 La version que el BackEnd de PoliTweets utiliza es la v1.2, y viene integrada por defecto en el repositorio de [BackEnd](https://github.com/TBD-2017-1/PoliTweets.git).
 
 Si se quiere recompilar el proyecto, se debe escribir en la raiz de este repositorio y por terminal
-```gradle shadow```
+```
+gradle shadow
+```
 
 Para actualizar la libreria en BackEnd:
  - Copiar la libreria que generada en el proceso de compilacion, ubicada en la carpeta `lib/`
