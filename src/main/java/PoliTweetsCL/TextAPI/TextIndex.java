@@ -3,9 +3,9 @@ package PoliTweetsCL.TextAPI;
 import PoliTweetsCL.Core.BD.MongoDBController;
 
 import PoliTweetsCL.Core.BD.MySQLController;
+import PoliTweetsCL.Core.Misc.Config;
 import PoliTweetsCL.Core.Model.Tweet;
 import org.apache.lucene.analysis.es.SpanishAnalyzer;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StoredField;
@@ -29,6 +29,7 @@ public class TextIndex {
     private int neutralCount = 0;
     private float positiveValue = 0;
     private float negativeValue = 0;
+
 
     public int getHitCount() {return hitCount;}
     public int getNegativeCount() {return negativeCount;}
@@ -156,8 +157,10 @@ public class TextIndex {
 
 
     public static void main(String[] args) {
-        MongoDBController mongo = new MongoDBController("admin","x");
-        MySQLController mysql = new MySQLController("root","x");
+        Config config = new Config();
+
+        MongoDBController mongo = new MongoDBController(config.getPropertiesObj());
+        MySQLController mysql = new MySQLController(config.getPropertiesObj());
         Tweet[] tweets = mongo.getTextUnindexedTweets(false);
         TextIndex lucene = new TextIndex();
 
