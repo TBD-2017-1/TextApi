@@ -53,7 +53,7 @@ public class TextIndex {
             Directory dir = FSDirectory.open(Paths.get("indice/"));// directorio donde se guarda el indice
             SpanishAnalyzer analyzer = new SpanishAnalyzer();
             IndexWriterConfig config = new IndexWriterConfig(analyzer);
-            config.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
+            config.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
             IndexWriter w = new IndexWriter(dir, config);
 
             // por cada tweet
