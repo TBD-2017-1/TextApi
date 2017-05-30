@@ -18,10 +18,13 @@ import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.*;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.store.RAMDirectory;
 
 import java.nio.file.Paths;
 
 public class TextIndex {
+
+    private Directory dir;
 
     private int hitCount = 0;
     private int positiveCount = 0;
@@ -39,18 +42,38 @@ public class TextIndex {
     public float getNegativeValue() {return negativeValue;}
     public float getPositiveValue() {return positiveValue;}
 
-    /**
-     * Crea un indice invertido basado en un arreglo de tweets.
-     *
-     * Para crear el arreglo solo se utiliza el texto, y se guarda el sentimiento del tweet
-     *
-     * @param   tweets  Tweet[] un arreglo de tweets los cuales se indexaran
-     * @return  Retorna la cantidad de documentos indexados
-     */
-    public int crearIndice(Tweet[] tweets){// metodo que crea el indice con todos los archivos dentro del path
+
+    public TextIndex() {
+        nuevoIndice(false);
+    }
+
+    public TextIndex(boolean isRamDir) {
+        nuevoIndice(isRamDir);
+    }
+
+    public void nuevoIndice(boolean isRamDir){
         try {
-            // Preparar un nuevo indice
-            Directory dir = FSDirectory.open(Paths.get("indice/"));// directorio donde se guarda el indice
+            if(dir!=null) {
+                dir.close();
+                dir = null;
+            }
+            if(isRamDir){
+                dir = new RAMDirectory();
+            }else{
+                dir = FSDirectory.open(Paths.get("indice/"));// directorio donde se guarda el indice
+            }
+            SpanishAnalyzer analyzer = new SpanishAnalyzer();
+            IndexWriterConfig config = new IndexWriterConfig(analyzer);
+            config.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
+            IndexWriter w = new IndexWriter(dir, config);
+            w.close();
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
+    }
+
+    public int addTweets(Tweet[] tweets){// metodo que crea el indice con todos los archivos dentro del path
+        try {
             SpanishAnalyzer analyzer = new SpanishAnalyzer();
             IndexWriterConfig config = new IndexWriterConfig(analyzer);
             config.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
@@ -85,15 +108,7 @@ public class TextIndex {
         return 0;
     }
 
-    /**
-     * Hace una busqueda en el indice basado en un arreglo de String
-     *
-     * El resultado de la busqueda se analiza y se guarda el conteo de sentimientos en la misma clase,
-     * luego se pueden acceder a traves de getters
-     *
-     * @param   keywords    String[] un arreglo de strings
-     * @return  Retorna la cantidad de documentos que contienen al menos una keyword
-     */
+
     public int buscarKeywords(String keywords[]){// metodo para busqueda dada alguna palabra
         // reiniciar la cache de consulta
         this.hitCount = 0;
@@ -164,7 +179,7 @@ public class TextIndex {
         Tweet[] tweets = mongo.getTextUnindexedTweets(false);
         TextIndex lucene = new TextIndex();
 
-        int docs = lucene.crearIndice(tweets);
+        int docs = lucene.addTweets(tweets);
         System.out.println("Documentos indexados: "+docs);
 
         int hits = lucene.buscarKeywords(mysql.getKeywords().toArray(new String[0]));
